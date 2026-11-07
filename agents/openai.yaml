@@ -1,0 +1,5 @@
+interface:
+  display_name: "MARTIS REA"
+  short_description: "Persistent evidence-led REA sessions"
+  default_prompt: "Use $martis-rea to start or resume an evidence-led reverse-engineering session."
+
