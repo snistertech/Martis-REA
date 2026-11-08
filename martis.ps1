@@ -1,18 +1,40 @@
 # PowerShell, file: martis.ps1, target: Windows PowerShell 5.1+
 [CmdletBinding()]
 param(
-    [Parameter(Position = 0)][ValidateSet('start', 'resume', 'status', 'prompt')][string]$Command = 'start',
+    [Parameter(Position = 0)][ValidateSet('start', 'resume', 'status', 'prompt', 'import-codex', 'init', 'rea', 'export', 'import')][string]$Command = 'start',
     [Parameter(Position = 1)][string]$Name,
     [string]$Workspace,
     [string]$Target,
     [string]$Goal,
     [ValidateSet('none', 'codex', 'claude')][string]$Agent = 'none',
-    [switch]$Run
+    [switch]$Run,
+    [string]$SessionFile,
+    [datetime]$From,
+    [datetime]$To,
+    [switch]$Force,
+    [string]$Output,
+    [string]$InputPath,
+    [string]$SourceSession
 )
 
 $ErrorActionPreference = 'Stop'
 $brain_root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $session_root = Join-Path $brain_root '.session'
+
+if ($Command -eq 'import-codex') {
+    if ([string]::IsNullOrWhiteSpace($Name)) { $Name = Read-Host 'Session name' }
+    if ([string]::IsNullOrWhiteSpace($SessionFile)) { $SessionFile = Read-Host 'Codex rollout JSONL path' }
+    if ($From -eq [datetime]::MinValue) { throw '-From is required for import-codex.' }
+    if ($To -eq [datetime]::MinValue) { throw '-To is required for import-codex.' }
+    if ([string]::IsNullOrWhiteSpace($Workspace)) { $Workspace = (Get-Location).Path }
+    & (Join-Path $brain_root 'scripts\import-codex-session.ps1') -Name $Name -SessionFile $SessionFile -From $From -To $To -SessionRoot $session_root -Workspace $Workspace -Force:$Force
+    exit $LASTEXITCODE
+}
+
+if ($Command -in @('init', 'rea', 'export', 'import') -or ($Command -eq 'status' -and [string]::IsNullOrWhiteSpace($Name))) {
+    & (Join-Path $brain_root 'scripts\project-workshop.ps1') -Command $Command -Name $Name -Workspace $Workspace -Target $Target -Goal $Goal -Agent $Agent -Run:$Run -Output $Output -InputPath $InputPath -SourceSession $SourceSession -Force:$Force -BrainRoot $brain_root
+    exit $LASTEXITCODE
+}
 
 function Get-SafeName([string]$Value) {
     if ([string]::IsNullOrWhiteSpace($Value)) { $Value = Read-Host 'Session name' }

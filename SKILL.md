@@ -14,6 +14,10 @@ Treat these forms equivalently:
 - `MARTIS start <name>`
 - `MARTIS resume <name> <goal>`
 - `MARTIS status <name>`
+- `MARTIS import-codex <name> -SessionFile <rollout.jsonl> -From <date> -To <date>`
+- `MARTIS init` creates `.martis` in the current project.
+- `MARTIS rea <goal>` resumes the nearest project workshop.
+- `MARTIS export` and `MARTIS import` move a workshop between computers.
 - Codex: `$martis-rea ...`
 - Claude Code: `/martis-rea ...`
 
@@ -26,13 +30,18 @@ Resolve this skill directory first, then run its `martis.ps1`:
 ```powershell
 & '<installed-skill-directory>\martis.ps1' start <name> -Workspace '<directory>' -Target '<artifact-or-url>' -Goal '<goal>'
 & '<installed-skill-directory>\martis.ps1' resume <name> -Goal '<next goal>'
+& '<installed-skill-directory>\martis.ps1' init -Workspace '<project-directory>'
+& '<installed-skill-directory>\martis.ps1' rea -Workspace '<project-directory>' -Goal '<next goal>'
 ```
+
+Prefer a project-local `.martis` workshop when one exists. Search from the current directory upward. Use global `.session\<name>` state for named legacy sessions and Codex transcript imports.
 
 Add `-Agent codex -Run` or `-Agent claude -Run` only when explicitly requested.
 
 ## Workflow
 
 1. Read the session's `SESSION.json`, `STATE.md`, `REQUEST.md`, `EVIDENCE.md`, and `TODO.md`.
+   For imported Codex sessions, read `CONTINUATION.md`, `DECISIONS.md`, and `WORKSPACES.md`, then search `TIMELINE.md` narrowly for the active task.
 2. Read [references/routing.md](references/routing.md) before choosing the first REA operation.
 3. Verify target identity; treat a changed local-file hash as a new build record.
 4. Reuse matching evidence before repeating expensive analysis.

@@ -9,6 +9,8 @@ $required = @(
     'martis.ps1',
     'references\routing.md',
     'scripts\save-finding.ps1',
+    'scripts\import-codex-session.ps1',
+    'scripts\project-workshop.ps1',
     'martis.cmd',
     'skills\martis-rea\SKILL.md',
     'skills\martis-rea\references\routing.md',
